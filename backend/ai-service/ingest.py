@@ -9,9 +9,12 @@ Usage:
     python ingest.py --path /path/to.pdf # Ingest a specific PDF
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path
+from typing import Optional
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -99,7 +102,7 @@ def store_in_chromadb(chunks: list, embedding_fn) -> None:
     print(f"✅ Total documents in collection: {collection.count()}")
 
 
-def ingest_pdfs(pdf_path: str | None = None) -> dict:
+def ingest_pdfs(pdf_path: Optional[str] = None) -> dict:
     """
     Main ingestion pipeline.
 

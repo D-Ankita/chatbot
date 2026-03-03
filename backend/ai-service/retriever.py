@@ -4,7 +4,10 @@ Retriever module for MedAssist AI.
 Handles query embedding and similarity search against the ChromaDB vector store.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import List, Optional
 
 import chromadb
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -41,7 +44,7 @@ class MedAssistRetriever:
             metadata={"hnsw:space": "cosine"},
         )
 
-    def retrieve(self, query: str, top_k: int | None = None) -> list[RetrievedChunk]:
+    def retrieve(self, query: str, top_k: Optional[int] = None) -> List[RetrievedChunk]:
         """
         Retrieve the most relevant document chunks for a given query.
 
@@ -85,7 +88,7 @@ class MedAssistRetriever:
 
         return chunks
 
-    def format_context(self, chunks: list[RetrievedChunk]) -> str:
+    def format_context(self, chunks: List[RetrievedChunk]) -> str:
         """Format retrieved chunks into a context string for the LLM prompt."""
         if not chunks:
             return "No relevant documents found in the knowledge base."

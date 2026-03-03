@@ -7,7 +7,10 @@ Implements a decision-making agent that routes user queries into one of three pa
 3. ESCALATE - Flag emergency symptoms and direct to emergency services
 """
 
+from __future__ import annotations
+
 import re
+from typing import List, Optional
 
 from chain import MedAssistChain
 
@@ -107,7 +110,7 @@ class MedAssistAgent:
     def process_query(
         self,
         query: str,
-        chat_history: list[dict] | None = None,
+        chat_history: Optional[List[dict]] = None,
     ) -> dict:
         """
         Process a user query through the agent pipeline.

@@ -5,6 +5,10 @@ Constructs the prompt with retrieved context and conversation history,
 sends it to the LLM, and returns the generated response.
 """
 
+from __future__ import annotations
+
+from typing import List, Optional
+
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage, AIMessage, SystemMessage
@@ -30,7 +34,7 @@ class MedAssistChain:
         self,
         question: str,
         context: str,
-        chat_history: list[dict] | None = None,
+        chat_history: Optional[List[dict]] = None,
     ) -> list:
         """
         Build the message list for the LLM.
@@ -67,7 +71,7 @@ class MedAssistChain:
     def query(
         self,
         question: str,
-        chat_history: list[dict] | None = None,
+        chat_history: Optional[List[dict]] = None,
     ) -> dict:
         """
         Run the full RAG pipeline for a user question.
@@ -101,7 +105,7 @@ class MedAssistChain:
             "relevance_scores": [c.relevance_score for c in chunks],
         }
 
-    def _extract_sources(self, chunks: list[RetrievedChunk]) -> list[dict]:
+    def _extract_sources(self, chunks: List[RetrievedChunk]) -> List[dict]:
         """Extract unique source documents from retrieved chunks."""
         seen = set()
         sources = []

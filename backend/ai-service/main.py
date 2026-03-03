@@ -5,7 +5,10 @@ Healthcare FAQ chatbot with RAG pipeline, agentic routing,
 and voice interaction support.
 """
 
+from __future__ import annotations
+
 from contextlib import asynccontextmanager
+from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,15 +28,15 @@ class ChatMessage(BaseModel):
 
 class QueryRequest(BaseModel):
     question: str
-    chat_history: list[ChatMessage] = []
+    chat_history: List[ChatMessage] = []
 
 
 class QueryResponse(BaseModel):
     intent: str
     answer: str
-    sources: list[dict] = []
+    sources: List[dict] = []
     chunks_retrieved: int = 0
-    relevance_scores: list[float] = []
+    relevance_scores: List[float] = []
 
 
 class IngestResponse(BaseModel):
@@ -52,7 +55,7 @@ class HealthResponse(BaseModel):
 
 # --- Application ---
 
-agent: MedAssistAgent | None = None
+agent: Optional[MedAssistAgent] = None
 
 
 @asynccontextmanager
