@@ -4,6 +4,8 @@ An AI-powered healthcare information assistant that answers patient health quest
 
 MedAssist AI retrieves information from public medical guidelines (NHS, WHO, CDC), generates clear and cited responses, and ensures patient safety through built-in guardrails. It is designed for patients seeking quick health information, and healthcare support teams handling repetitive FAQs.
 
+<img width="1808" height="1700" alt="image" src="https://github.com/user-attachments/assets/e60f60a3-033c-4e12-a7e6-97c6a99b1ca5" />
+
 ---
 
 ## What It Does
