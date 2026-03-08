@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 import chromadb
+from chromadb.config import Settings
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from config import (
@@ -38,7 +39,10 @@ class MedAssistRetriever:
             model_kwargs={"device": "cpu"},
             encode_kwargs={"normalize_embeddings": True},
         )
-        self._client = chromadb.PersistentClient(path=CHROMA_PERSIST_DIR)
+        self._client = chromadb.PersistentClient(
+            path=CHROMA_PERSIST_DIR,
+            settings=Settings(anonymized_telemetry=False),
+        )
         self._collection = self._client.get_or_create_collection(
             name=CHROMA_COLLECTION_NAME,
             metadata={"hnsw:space": "cosine"},

@@ -20,18 +20,29 @@ export function VoiceInput({ onTranscript }: VoiceInputProps) {
   return (
     <button
       onClick={isListening ? stopListening : startListening}
-      className={`relative p-2.5 rounded-full transition-all cursor-pointer ${
-        isListening
-          ? 'bg-red-500 text-white mic-pulse'
-          : 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
-      }`}
+      className={isListening ? 'mic-pulse' : ''}
+      style={{
+        position: 'relative',
+        padding: '12px',
+        borderRadius: '14px',
+        border: isListening ? 'none' : '1px solid #e2e8f0',
+        background: isListening ? '#ef4444' : '#ffffff',
+        color: isListening ? '#ffffff' : '#94a3b8',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        boxShadow: isListening ? '0 2px 8px rgba(239, 68, 68, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.04)',
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
       title={isListening ? 'Stop recording' : 'Voice input'}
       type="button"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="18"
-        height="18"
+        width="20"
+        height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

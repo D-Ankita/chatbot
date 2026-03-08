@@ -87,10 +87,25 @@ The system uses **Retrieval-Augmented Generation (RAG)** — your question is ma
 
 ---
 
+## What This Project Demonstrates
+
+- **RAG pipeline from scratch** — PDF ingestion, chunking, vector search, and cited LLM responses
+- **Agentic routing** — intent classification (escalate / clarify / answer) before LLM calls
+- **Multi-LLM support** — Gemini, Claude, and OpenAI with automatic fallback
+- **Voice interaction** — browser-native speech-to-text and text-to-speech, no external services
+- **Security practices** — XSS-safe rendering, path traversal protection, endpoint authentication
+- **Production patterns** — health monitoring with exponential backoff, content-derived document IDs, telemetry control
+
+For the full breakdown, see the [Project Overview](product-documents/00-Project-Overview.md).
+
+
+---
+
 ## Documentation
 
 | Document | Description |
 |----------|-------------|
+| [Project Overview](product-documents/00-Project-Overview.md) | What this project is, what it demonstrates, and why it matters |
 | [Product Requirements](product-documents/01-PRD.md) | Full PRD with features, user stories, and acceptance criteria |
 | [Architecture](product-documents/02-Architecture-Document.md) | System architecture and component design |
 | [API Documentation](product-documents/03-API-Documentation.md) | API endpoints, request/response formats |

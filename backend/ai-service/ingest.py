@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 from pathlib import Path
 from typing import Optional
@@ -20,6 +21,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 import chromadb
+from chromadb.config import Settings
 
 from config import (
     KNOWLEDGE_BASE_DIR,
@@ -67,7 +69,10 @@ def store_in_chromadb(chunks: list, embedding_fn) -> None:
     """Store document chunks with embeddings in ChromaDB."""
     print(f"💾 Storing in ChromaDB at: {CHROMA_PERSIST_DIR}")
 
-    client = chromadb.PersistentClient(path=CHROMA_PERSIST_DIR)
+    client = chromadb.PersistentClient(
+        path=CHROMA_PERSIST_DIR,
+        settings=Settings(anonymized_telemetry=False),
+    )
     collection = client.get_or_create_collection(
         name=CHROMA_COLLECTION_NAME,
         metadata={"hnsw:space": "cosine"},
@@ -78,7 +83,12 @@ def store_in_chromadb(chunks: list, embedding_fn) -> None:
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i : i + batch_size]
 
-        ids = [f"doc_{i + j}" for j in range(len(batch))]
+        ids = [
+            hashlib.md5(
+                f"{chunk.metadata.get('source', 'unknown')}_{chunk.metadata.get('page', 0)}_{i + j}".encode()
+            ).hexdigest()
+            for j, chunk in enumerate(batch)
+        ]
         documents = [chunk.page_content for chunk in batch]
         metadatas = [
             {

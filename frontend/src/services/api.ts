@@ -1,6 +1,6 @@
 import type { QueryRequest, QueryResponse, HealthStatus } from '../types/chat';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 export async function sendQuery(request: QueryRequest): Promise<QueryResponse> {
   const response = await fetch(`${API_BASE}/query`, {

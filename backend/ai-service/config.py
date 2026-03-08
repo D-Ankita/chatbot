@@ -14,6 +14,7 @@ KNOWLEDGE_BASE_DIR = BASE_DIR.parent.parent / "knowledge_base"
 # LLM
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Embedding
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
@@ -35,5 +36,9 @@ PORT = int(os.getenv("PORT", "8000"))
 def get_system_prompt() -> str:
     """Load the system prompt from the prompts directory."""
     prompt_path = PROMPTS_DIR / "system_prompt.txt"
-    with open(prompt_path, "r") as f:
-        return f.read()
+    if not prompt_path.exists():
+        raise FileNotFoundError(
+            f"System prompt not found at {prompt_path}. "
+            "Ensure prompts/system_prompt.txt exists before starting the service."
+        )
+    return prompt_path.read_text()

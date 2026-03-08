@@ -7,16 +7,25 @@ and voice interaction support.
 
 from __future__ import annotations
 
+import os
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 from contextlib import asynccontextmanager
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from pathlib import Path
+
+from fastapi import FastAPI, Header, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from config import HOST, PORT
 from agent import MedAssistAgent
 from ingest import ingest_pdfs
+
+# Optional admin secret for protecting /ingest and /upload endpoints
+ADMIN_SECRET = os.getenv("ADMIN_SECRET", "")
 
 
 # --- Pydantic Models ---
@@ -80,7 +89,12 @@ app = FastAPI(
 # CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -134,7 +148,7 @@ async def query(request: QueryRequest):
 
 
 @app.post("/ingest", response_model=IngestResponse)
-async def ingest_documents():
+async def ingest_documents(x_admin_key: str = Header(default="")):
     """
     Ingest all PDF documents from the knowledge_base/ directory.
 
@@ -144,6 +158,9 @@ async def ingest_documents():
     3. Generate embeddings
     4. Store in ChromaDB
     """
+    if ADMIN_SECRET and x_admin_key != ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     try:
         result = ingest_pdfs()
 
@@ -166,8 +183,14 @@ async def ingest_documents():
 
 
 @app.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
+async def upload_document(
+    file: UploadFile = File(...),
+    x_admin_key: str = Header(default=""),
+):
     """Upload a PDF document to the knowledge base and ingest it."""
+    if ADMIN_SECRET and x_admin_key != ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     if not file.filename or not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
@@ -175,8 +198,13 @@ async def upload_document(file: UploadFile = File(...)):
         from config import KNOWLEDGE_BASE_DIR
         import shutil
 
+        # Sanitize filename to prevent path traversal attacks
+        safe_name = Path(file.filename).name
+        if not safe_name or not safe_name.endswith(".pdf"):
+            raise HTTPException(status_code=400, detail="Invalid filename")
+
         # Save uploaded file
-        file_path = KNOWLEDGE_BASE_DIR / file.filename
+        file_path = KNOWLEDGE_BASE_DIR / safe_name
         with open(file_path, "wb") as f:
             shutil.copyfileobj(file.file, f)
 
@@ -185,14 +213,16 @@ async def upload_document(file: UploadFile = File(...)):
 
         return {
             "status": "success",
-            "message": f"Uploaded and ingested {file.filename}",
+            "message": f"Uploaded and ingested {safe_name}",
             "details": result,
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload error: {str(e)}")
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host=HOST, port=int(PORT), reload=True)
+    uvicorn.run("main:app", host=HOST, port=int(PORT))

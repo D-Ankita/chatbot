@@ -9,11 +9,9 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage, AIMessage, SystemMessage
 
-from config import OPENAI_API_KEY, get_system_prompt
+from config import OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY, get_system_prompt
 from retriever import MedAssistRetriever, RetrievedChunk
 
 
@@ -22,12 +20,35 @@ class MedAssistChain:
 
     def __init__(self):
         self.retriever = MedAssistRetriever()
-        self.llm = ChatOpenAI(
-            model="gpt-4o-mini",
-            temperature=0.3,
-            api_key=OPENAI_API_KEY,
-            max_tokens=1024,
-        )
+
+        if GEMINI_API_KEY:
+            from langchain_google_genai import ChatGoogleGenerativeAI
+            self.llm = ChatGoogleGenerativeAI(
+                model="gemini-1.5-flash-latest",
+                temperature=0.3,
+                google_api_key=GEMINI_API_KEY,
+                max_output_tokens=1024,
+            )
+            print("🤖 Using Google Gemini (gemini-1.5-flash-latest)")
+        elif ANTHROPIC_API_KEY:
+            from langchain_anthropic import ChatAnthropic
+            self.llm = ChatAnthropic(
+                model="claude-3-5-haiku-20241022",
+                temperature=0.3,
+                api_key=ANTHROPIC_API_KEY,
+                max_tokens=1024,
+            )
+            print("🤖 Using Anthropic Claude (claude-3-5-haiku)")
+        else:
+            from langchain_openai import ChatOpenAI
+            self.llm = ChatOpenAI(
+                model="gpt-4o-mini",
+                temperature=0.3,
+                api_key=OPENAI_API_KEY,
+                max_tokens=1024,
+            )
+            print("🤖 Using OpenAI GPT-4o Mini")
+
         self.system_prompt_template = get_system_prompt()
 
     def build_prompt(
